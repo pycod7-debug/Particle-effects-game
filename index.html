@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Precision AI Whiteboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    <style>
+        body { margin: 0; background: #121212; color: #00ff88; font-family: 'Monaco', monospace; overflow: hidden; }
+        canvas { display: block; touch-action: none; }
+        .overlay {
+            position: fixed; top: 10px; left: 10px; pointer-events: none;
+            background: rgba(0,0,0,0.8); padding: 10px; border: 1px solid #00ff88;
+        }
+        .loading-bar { height: 2px; background: #00ff88; width: 0%; transition: 0.3s; }
+    </style>
+</head>
+<body>
+
+    <div class="overlay">
+        <div>STATUS: <span id="status">IDLE</span></div>
+        <div id="progress" class="loading-bar"></div>
+    </div>
+
+    <canvas id="canvas"></canvas>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const status = document.getElementById('status');
+        let points = [];
+        let drawing = false;
+
+        function init() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+        }
+        window.addEventListener('resize', init);
+        init();
+
+        canvas.addEventListener('pointerdown', (e) => {
+            drawing = true;
+            points = [{x: e.clientX, y: e.clientY}];
+            ctx.beginPath();
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 2;
+        });
+
+        window.addEventListener('pointermove', (e) => {
+            if (!drawing) return;
+            const p = {x: e.clientX, y: e.clientY};
+            points.push(p);
+            ctx.lineTo(p.x, p.y);
+            ctx.stroke();
+        });
+
+        window.addEventListener('pointerup', async () => {
+            if (!drawing) return;
+            drawing = false;
+            status.innerText = "ANALYZING...";
+            await processInput();
+        });
+
+        async function processInput() {
+            if (points.length < 15) return;
+
+            const bounds = getBounds(points);
+            const pathLen = getPathLen(points);
+            const isClosed = Math.hypot(points[0].x - points[points.length-1].x, points[0].y - points[points.length-1].y) < (pathLen * 0.2);
+
+            // 1. Simplify path (Ramer-Douglas-Peucker light)
+            const corners = getCorners(points, 10);
+            
+            ctx.clearRect(bounds.x-20, bounds.y-20, bounds.w+40, bounds.h+40);
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = '#00ff88';
+
+            // 2. Logic Branching
+            if (isClosed) {
+                if (corners.length <= 3) drawCircle(bounds);
+                else if (corners.length === 4) drawTriangle(bounds);
+                else if (corners.length === 5) drawRect(bounds);
+                else drawPolygon(corners);
+                status.innerText = "SHAPE REFINED";
+            } else {
+                // Not closed? Likely a Letter or Number
+                await runOCR(bounds);
+            }
+        }
+
+        // --- Geometric Engines ---
+
+        function getCorners(pts, epsilon) {
+            // Simplifies the line to find the 'intent' of the corners
+            if (pts.length < 3) return pts;
+            const res = [pts[0]];
+            for (let i = 1; i < pts.length - 1; i++) {
+                const d = distToSegment(pts[i], pts[i-1], pts[i+1]);
+                if (d > epsilon) res.push(pts[i]);
+            }
+            res.push(pts[pts.length - 1]);
+            return res;
+        }
+
+        function distToSegment(p, a, b) {
+            const l2 = Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2);
+            if (l2 == 0) return Math.hypot(p.x - a.x, p.y - a.y);
+            let t = ((p.x - a.x) * (b.x - a.x) + (p.y - a.y) * (b.y - a.y)) / l2;
+            t = Math.max(0, Math.min(1, t));
+            return Math.hypot(p.x - (a.x + t * (b.x - a.x)), p.y - (a.y + t * (b.y - a.y)));
+        }
+
+        async function runOCR(b) {
+            const tmp = document.createElement('canvas');
+            tmp.width = b.w + 60; tmp.height = b.h + 60;
+            const tCtx = tmp.getContext('2d');
+            tCtx.fillStyle = 'white'; tCtx.fillRect(0,0,tmp.width,tmp.height);
+            tCtx.drawImage(canvas, b.x-30, b.y-30, b.w+60, b.h+60, 0,0, b.w+60, b.h+60);
+            
+            try {
+                const { data: { text } } = await Tesseract.recognize(tmp.toDataURL(), 'eng');
+                const char = text.replace(/[^a-zA-Z0-9]/g, '').charAt(0);
+                if (char) {
+                    ctx.fillStyle = '#00ff88';
+                    ctx.font = `${b.h * 1.2}px Arial`;
+                    ctx.fillText(char, b.x, b.y + b.h);
+                    status.innerText = "TEXT: " + char;
+                }
+            } catch (e) { status.innerText = "ERROR"; }
+        }
+
+        // --- Drawing Helpers ---
+        function getBounds(pts) {
+            const xs = pts.map(p => p.x), ys = pts.map(p => p.y);
+            const x = Math.min(...xs), y = Math.min(...ys);
+            return { x, y, w: Math.max(...xs) - x, h: Math.max(...ys) - y };
+        }
+
+        function getPathLen(pts) {
+            return pts.reduce((a, b, i) => i === 0 ? 0 : a + Math.hypot(b.x - pts[i-1].x, b.y - pts[i-1].y), 0);
+        }
+
+        function drawCircle(b) {
+            ctx.beginPath(); ctx.arc(b.x + b.w/2, b.y + b.h/2, (b.w+b.h)/4, 0, Math.PI*2); ctx.stroke();
+        }
+
+        function drawTriangle(b) {
+            ctx.beginPath(); ctx.moveTo(b.x + b.w/2, b.y); ctx.lineTo(b.x, b.y + b.h); ctx.lineTo(b.x + b.w, b.y + b.h); ctx.closePath(); ctx.stroke();
+        }
+
+        function drawRect(b) { ctx.strokeRect(b.x, b.y, b.w, b.h); }
+
+        function drawPolygon(pts) {
+            ctx.beginPath(); ctx.moveTo(pts[0].x, pts[0].y);
+            pts.forEach(p => ctx.lineTo(p.x, p.y));
+            ctx.closePath(); ctx.stroke();
+        }
+    </script>
+</body>
+</html>
