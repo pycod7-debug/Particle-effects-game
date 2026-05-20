@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantum Particle Multi-Matrix Studio</title>
+    <style>
+        :root {
+            --bg-glass: rgba(6, 6, 14, 0.7);
+            --border-glass: rgba(255, 255, 255, 0.08);
+            --accent-neon: #00f0ff;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #020205;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            color: #fff;
+            user-select: none;
+        }
+        #canvas-container {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+        
+        /* Universal Responsive Control Structure */
+        .studio-panel {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 350px;
+            max-height: calc(100vh - 40px);
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glass);
+            border-radius: 20px;
+            padding: 24px;
+            z-index: 10;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.8);
+            overflow-y: auto;
+            scrollbar-width: thin;
+        }
+        .studio-panel::-webkit-scrollbar {
+            width: 4px;
+        }
+        .studio-panel::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.1);
+            border-radius: 2px;
+        }
+        
+        .header {
+            margin-bottom: 22px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            padding-bottom: 14px;
+        }
+        .header h1 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            background: linear-gradient(45deg, #fff, #a3b8cc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .header p {
+            font-size: 0.75rem;
+            color: #6c7293;
+            margin-top: 3px;
+        }
+
+        .section-title {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--accent-neon);
+            margin: 15px 0 10px 0;
+            font-weight: 700;
+        }
+
+        .control-item {
+            margin-bottom: 14px;
+        }
+        .control-item label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: #a0aec0;
+            margin-bottom: 6px;
+        }
+
+        /* Form Factors Styling */
+        select {
+            width: 100%;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.12);
+            padding: 12px;
+            border-radius: 10px;
+            color: white;
+            font-size: 0.85rem;
+            outline: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        select:hover {
+            background: rgba(255,255,255,0.08);
+            border-color: rgba(255,255,255,0.25);
+        }
+        select option { background: #070710; }
+
+        .slider-wrap {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        input[type="range"] {
+            flex: 1;
+            -webkit-appearance: none;
+            appearance: none;
+            background: rgba(255,255,255,0.08);
+            height: 5px;
+            border-radius: 3px;
+            outline: none;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #ffffff;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            transition: transform 0.1s, background-color 0.2s;
+        }
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            background: var(--accent-neon);
+        }
+        .v-indicator {
+            font-size: 0.75rem;
+            color: #cbd5e0;
+            min-width: 32px;
+            text-align: right;
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* Color Matrix Grid Layout */
+        .color-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+        }
+        .c-node {
+            height: 32px;
+            border-radius: 8px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .c-node.active {
+            border-color: #ffffff;
+            transform: scale(1.1);
+            box-shadow: 0 0 12px rgba(255,255,255,0.2);
+        }
+
+        /* Bottom status overlay row */
+        .hud-status {
+            position: absolute;
+            bottom: 25px;
+            left: 25px;
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+            color: rgba(255,255,255,0.25);
+            z-index: 5;
+            pointer-events: none;
+            text-transform: uppercase;
+        }
+
+        /* Toggle Button Interface */
+        .toggle-btn {
+            width: 100%;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.12);
+            color: #fff;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .toggle-btn:hover {
+            background: rgba(255,255,255,0.08);
+            border-color: rgba(255,255,255,0.2);
+        }
+        .toggle-btn.active {
+            background: linear-gradient(135deg, #00f0ff, #7f00ff);
+            border-color: transparent;
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.4);
+        }
+
+        /* RESPONSIVE DESIGN CAPABILITIES FOR MOBILE PHONES */
+        @media (max-width: 768px) {
+            .studio-panel {
+                top: auto;
+                right: 0;
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                max-height: 40vh;
+                border-radius: 24px 24px 0 0;
+                padding: 20px;
+                border-left: none;
+                border-right: none;
+                border-bottom: none;
+            }
+            .header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 15px;
+                padding-bottom: 8px;
+            }
+            .header p { display: none; }
+            .hud-status { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="canvas-container"></div>
+    <div class="hud-status">GPU Matrix Architecture &bull; 3D Orbit Active</div>
+
+    <!-- Right Side HUD Controller Framework Panel -->
+    <div class="studio-panel">
+        <div class="header">
+            <h1>QUANTUM STUDIO</h1>
+            <p>Vector Interpolation & Noise Displacement Fields</p>
+        </div>
+
+        <div class="section-title">Geometric Matrix</div>
+        <div class="control-item">
+            <select id="matrix-shape" onchange="shiftTopology(this.value)">
+                <option value="sphere">Spherical Field</option>
+                <option value="cube">Cubic Block Lattice</option>
+                <option value="torus">Donut Torus Ring</option>
+                <option value="helix">DNA Double Helix</option>
+                <option value="mobius">Mobius Strip Core</option>
+                <option value="saddle">Hyperbolic Paraboloid</option>
+                <option value="supernova">Exploded Supernova</option>
+                <option value="terrain">Sine Wave Grid Terrain</option>
+            </select>
+        </div>
+
+        <div class="section-title">Fluid Vector Fields</div>
+        <div class="control-item">
+            <label><span>Turbulent Turbulence (Noise)</span><span id="noise-val" class="v-indicator">2.5</span></label>
+            <div class="slider-wrap">
+                <input type="range" id="slider-noise" min="0.0" max="10.0" step="0.1" value="2.5" oninput="modifyUniform('uNoiseAmplitude', this.value, 'noise-val')">
+            </div>
+        </div>
+        <div class="control-item">
+            <label><span>Noise Frequency Scale</span><span id="freq-val" class="v-indicator">0.15</span></label>
+            <div class="slider-wrap">
+                <input type="range" id="slider-freq" min="0.02" max="0.6" step="0.01" value="0.15" oninput="modifyUniform('uNoiseFrequency', this.value, 'freq-val')">
+            </div>
+        </div>
+
+        <div class="section-title">Engine Configuration</div>
+        <div class="control-item">
+            <label><span>Node Density Scale</span><span id="density-val" class="v-indicator">25,000</span></label>
+            <div class="slider-wrap">
+                <input type="range" id="slider-density" min="5000" max="45000" step="1000" value="25000" oninput="adjustDensity(this.value)">
+            </div>
+        </div>
+        <div class="control-item">
+            <label><span>Glow Point Scale</span><span id="scale-val" class="v-indicator">1.5</span></label>
+            <div class="slider-wrap">
+                <input type="range" id="slider-scale" min="0.2" max="5.0" step="0.1" value="1.5" oninput="modifyUniform('uPointSize', this.value, 'scale-val')">
+            </div>
+        </div>
+        <div class="control-item">
+            <label><span>Morph Cycle Velocity</span><span id="rate-val" class="v-indicator">1.5</span></label>
+            <div class="slider-wrap">
+                <input type="range" id="slider-rate" min="0.2" max="5.0" step="0.1" value="1.5" oninput="adjustMorphSpeed(this.value)">
+            </div>
+        </div>
+
+        <div class="section-title">Acoustic Simulation</div>
+        <div class="control-item">
+            <button id="audio-toggle" class="toggle-btn" onclick="toggleAudioReactivity()">Enable Audio Pulse</button>
+        </div>
+
+        <div class="section-title">High-Emissive Aura Hue</div>
+        <div class="color-grid">
+            <button class="c-node active" style="background-color: #00f0ff;" onclick="shiftPalette('#00f0ff', this)"></button>
+            <button class="c-node" style="background-color: #ff0055;" onclick="shiftPalette('#ff0055', this)"></button>
+            <button class="c-node" style="background-color: #9d00ff;" onclick="shiftPalette('#9d00ff', this)"></button>
+            <button class="c-node" style="background-color: #00ff66;" onclick="shiftPalette('#00ff66', this)"></button>
+            <button class="c-node" style="background-color: #ffaa00;" onclick="shiftPalette('#ffaa00', this)"></button>
+        </div>
+    </div>
+
+    <!-- Dependency Framework Inclusion Engines -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+    <script>
+        // --- DATA STATE CAPABILITIES ALLOCATION ---
+        const ABSOLUTE_MAX = 45000;
+        let renderingCount = 25000;
+        let morphStepFactor = 0.015;
+        let audioActive = false;
+
+        let activeShape = 'sphere';
+        let stateMorphing = false;
+
+        const geometryCache = {
+            sphere: new Float32Array(ABSOLUTE_MAX * 3),
+            cube: new Float32Array(ABSOLUTE_MAX * 3),
+            torus: new Float32Array(ABSOLUTE_MAX * 3),
+            helix: new Float32Array(ABSOLUTE_MAX * 3),
+            mobius: new Float32Array(ABSOLUTE_MAX * 3),
+            saddle: new Float32Array(ABSOLUTE_MAX * 3),
+            supernova: new Float32Array(ABSOLUTE_MAX * 3),
+            terrain: new Float32Array(ABSOLUTE_MAX * 3)
+        };
+
+        // --- MATH GENERATOR PACKS ---
+        function runMathematicalCalculations() {
+            for (let i = 0; i < ABSOLUTE_MAX; i++) {
+                const i3 = i * 3;
+
+                // Spherical Fields Vector Coordinates
+                const u = Math.random(); const v = Math.random();
+                const theta = u * 2.0 * Math.PI; const phi = Math.acos(2.0 * v - 1.0);
+                geometryCache.sphere[i3]     = 10 * Math.sin(phi) * Math.cos(theta);
+                geometryCache.sphere[i3 + 1] = 10 * Math.sin(phi) * Math.sin(theta);
+                geometryCache.sphere[i3 + 2] = 10 * Math.cos(phi);
+
+                // Cubic Grid Formations
+                geometryCache.cube[i3]     = (Math.random() - 0.5) * 16;
+                geometryCache.cube[i3 + 1] = (Math.random() - 0.5) * 16;
+                geometryCache.cube[i3 + 2] = (Math.random() - 0.5) * 16;
+
+                // Toroid Ring Formulas
+                const rMajor = 9.0; const rMinor = 3.0;
+                const t1 = Math.random() * Math.PI * 2; const t2 = Math.random() * Math.PI * 2;
+                geometryCache.torus[i3]     = (rMajor + rMinor * Math.cos(t2)) * Math.cos(t1);
+                geometryCache.torus[i3 + 1] = (rMajor + rMinor * Math.cos(t2)) * Math.sin(t1);
+                geometryCache.torus[i3 + 2] = rMinor * Math.sin(t2);
+
+                // Chromosomal Dual Helix Paths
+                const hAngle = (i / ABSOLUTE_MAX) * Math.PI * 32;
+                const hSide = Math.random() > 0.5 ? 0 : Math.PI;
+                geometryCache.helix[i3]     = 5.0 * Math.cos(hAngle + hSide);
+                geometryCache.helix[i3 + 1] = (i / ABSOLUTE_MAX) * 24 - 12;
+                geometryCache.helix[i3 + 2] = 5.0 * Math.sin(hAngle + hSide);
+
+                // Non-Orientable Mobius Topology
+                const mU = Math.random() * Math.PI * 2;
+                const mV = (Math.random() - 0.5) * 4.0; // Strip width allocation bounds
+                geometryCache.mobius[i3]     = (10 + (mV * Math.cos(mU / 2.0))) * Math.cos(mU);
+                geometryCache.mobius[i3 + 1] = (10 + (mV * Math.cos(mU / 2.0))) * Math.sin(mU);
+                geometryCache.mobius[i3 + 2] = mV * Math.sin(mU / 2.0);
+
+                // Hyperbolic Saddle Surfaces
+                const sX = (Math.random() - 0.5) * 16;
+                const sY = (Math.random() - 0.5) * 16;
+                geometryCache.saddle[i3]     = sX;
+                geometryCache.saddle[i3 + 1] = ((sX*sX) / 8.0) - ((sY*sY) / 8.0); // Saddle math functions
+                geometryCache.saddle[i3 + 2] = sY;
+
+                // High Dispersion Explosive Supernova
+                const svU = Math.random(); const svV = Math.random();
+                const svTheta = svU * 2.0 * Math.PI; const svPhi = Math.acos(2.0 * svV - 1.0);
+                const explosionSpread = 3.0 + Math.pow(Math.random(), 3.0) * 15.0; // Concentrated center shell profile
+                geometryCache.supernova[i3]     = explosionSpread * Math.sin(svPhi) * Math.cos(svTheta);
+                geometryCache.supernova[i3 + 1] = explosionSpread * Math.sin(svPhi) * Math.sin(svTheta);
+                geometryCache.supernova[i3 + 2] = explosionSpread * Math.cos(svPhi);
+
+                // Mathematical Flat Wave Grid Terrain
+                const rowsCount = Math.floor(Math.sqrt(ABSOLUTE_MAX));
+                const rIdx = i % rowsCount;
+                const cIdx = Math.floor(i / rowsCount);
+                const tX = (rIdx / rowsCount - 0.5) * 25;
+                const tZ = (cIdx / rowsCount - 0.5) * 25;
+                geometryCache.terrain[i3]     = tX;
+                geometryCache.terrain[i3 + 1] = Math.sin(tX * 0.5) * Math.cos(tZ * 0.5) * 2.5;
+                geometryCache.terrain[i3 + 2] = tZ;
+            }
+        }
+        runMathematicalCalculations();
+
+        // --- GRAPHICS GRAPH CORE ARCHITECTURE BOOT ---
+        const container = document.getElementById('canvas-container');
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2(0x020205, 0.012);
+
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 8, 28);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        container.appendChild(renderer.domElement);
+
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.06;
+        controls.maxDistance = 60;
+        controls.minDistance = 5;
+
+        // --- SHADER PIPELINE INTEGRATION INJECTING NOISE ON THE GPU ---
+        // Includes GLSL implementation of Ashima Arts 3D Simplex Web Noise
+        const vertexShader = `
+            uniform float uProgress;
+            uniform float uPointSize;
+            uniform float uTime;
+            uniform float uNoiseAmplitude;
+            uniform float uNoiseFrequency;
+            uniform float uAudioPulse;
+            
+            attribute vec3 targetPosition;
+            varying vec3 vTransformedPos;
+            varying float vNoiseFactor;
+
+            // --- Ashima Arts 3D Simplex Noise Subroutines ---
+            vec4 permute(vec4 x){return mod(((x*34.0)+1.0)*x, 289.0);}
+            vec4 taylorInvSqrt(vec4 r){return 1.79284291400159 - 0.85373472095314 * r;}
+
+            float snoise(vec3 v){
+                const vec2 C = vec2(1.0/6.0, 1.0/3.0);
+                const vec4 D = vec4(0.0, 0.5, 1.0, 2.0);
+                vec3 i  = floor(v + dot(v, C.yyy) );
+                vec3 x0 = v - i + dot(i, C.xxx) ;
+                vec3 g = step(x0.yzx, x0.xyz);
+                vec3 l = 1.0 - g;
+                vec3 i1 = min( g.xyz, l.zxy );
+                vec3 i2 = max( g.xyz, l.zxy );
+                vec3 x1 = x0 - i1 + 1.0 * C.xxx;
+                vec3 x2 = x0 - i2 + 2.0 * C.xxx;
+                vec3 x3 = x0 - D.yyy;
+                i = mod(i, 289.0 );
+                vec4 p = permute( permute( permute(
+                            i.z + vec4(0.0, i1.z, i2.z, 1.0 ))
+                        + i.y + vec4(0.0, i1.y, i2.y, 1.0 ))
+                        + i.x + vec4(0.0, i1.x, i2.x, 1.0 ));
+                float n_ = 0.142857142857;
+                vec3 ns = n_ * D.wyz - D.xzx;
+                vec4 j = p - 49.0 * floor(p * ns.z);
+                vec4 x_ = floor(j * ns.z);
+                vec4 y_ = floor(j - 7.0 * x_ );
+                vec4 x = x_ *ns.x + ns.yyyy;
+                vec4 y = y_ *ns.x + ns.yyyy;
+                vec4 h = 1.0 - abs(x) - abs(y);
+                vec4 b0 = vec4( x.xy, y.xy );
+                vec4 b1 = vec4( x.zw, y.zw );
+                vec4 s0 = floor(b0)*2.0 + 1.0;
+                vec4 s1 = floor(b1)*2.0 + 1.0;
+                vec4 sh = -step(h, vec4(0.0));
+                vec4 a0 = b0.xzyw + s0.xzyw*sh.xxyy ;
+                vec4 a1 = b1.xzyw + s1.xzyw*sh.zzww ;
+                vec3 p0 = vec3(a0.xy,h.x);
+                vec3 p1 = vec3(a0.zw,h.y);
+                vec3 p2 = vec3(a1.xy,h.z);
+                vec3 p3 = vec3(a1.zw,h.w);
+                vec4 norm = taylorInvSqrt(vec4(dot(p0,p0), dot(p1,p1), dot(p2, p2), dot(p3,p3)));
+                p0 *= norm.x; p1 *= norm.y; p2 *= norm.z; p3 *= norm.w;
+                vec4 m = max(0.6 - vec4(dot(x0,x0), dot(x1,x1), dot(x2,x2), dot(x3,x3)), 0.0);
+                m = m * m;
+                return 42.0 * dot( m*m, vec4( dot(p0,x0), dot(p1,x1), dot(p2,x2), dot(p3,x3) ) );
+            }
+
+            void main() {
+                // Morph core blend vector tracking paths
+                vec3 structuralPos = mix(position, targetPosition, uProgress);
+                
+                // Vector noise spatial injection
+                float noiseVal = snoise(vec3(structuralPos * uNoiseFrequency + vec3(0.0, uTime * 0.15, uTime * 0.1)));
+                vNoiseFactor = noiseVal;
+                
+                // Apply directional distortion displacement
+                vec3 alteredPos = structuralPos + (normalize(structuralPos) * noiseVal * (uNoiseAmplitude + uAudioPulse));
+                vTransformedPos = alteredPos;
+
+                vec4 mvPosition = modelViewMatrix * vec4(alteredPos, 1.0);
+                gl_Position = projectionMatrix * mvPosition;
+                
+                // Scale calculations keeping point sizes proportional over lens distance
+                gl_PointSize = (uPointSize * 35.0) / -mvPosition.z;
+                
+                // Audio pulsation scaling spikes
+                if(uAudioPulse > 0.0) {
+                    gl_PointSize *= (1.0 + (abs(noiseVal) * 0.4));
+                }
+            }
+        `;
+
+        const fragmentShader = `
+            uniform vec3 uBaseColor;
+            uniform float uAudioPulse;
+            varying vec3 vTransformedPos;
+            varying float vNoiseFactor;
+
+            void main() {
+                // Procedural generation of circular high-intensity emmissive nodes
+                float circularRadius = distance(gl_PointCoord, vec2(0.5));
+                if (circularRadius > 0.5) discard;
+                
+                float luminosity = pow(0.05 / circularRadius, 1.5);
+                
+                // Color mapping vector arrays
+                vec3 matrixColor = uBaseColor;
+                
+                // Hyper-bright modulation vectors
+                matrixColor.g += (vNoiseFactor * 0.25);
+                matrixColor.b += (sin(vTransformedPos.z * 0.1) * 0.15);
+                
+                if(uAudioPulse > 0.0) {
+                    // Inject white hot center cores dynamically
+                    matrixColor += vec3(uAudioPulse * 0.12 * luminosity);
+                }
+
+                gl_FragColor = vec4(matrixColor, luminosity * 0.8);
+            }
+        `;
+
+        const runtimePositionArray = new Float32Array(ABSOLUTE_MAX * 3);
+        const destinationPositionArray = new Float32Array(ABSOLUTE_MAX * 3);
+
+        runtimePositionArray.set(geometryCache.sphere);
+        destinationPositionArray.set(geometryCache.sphere);
+
+        const customTopologyGeometry = new THREE.BufferGeometry();
+        customTopologyGeometry.setAttribute('position', new THREE.BufferAttribute(runtimePositionArray, 3));
+        customTopologyGeometry.setAttribute('targetPosition', new THREE.BufferAttribute(destinationPositionArray, 3));
+
+        const shaderUniformsMatrix = {
+            uProgress: { value: 1.0 },
+            uPointSize: { value: 1.5 },
+            uTime: { value: 0.0 },
+            uNoiseAmplitude: { value: 2.5 },
+            uNoiseFrequency: { value: 0.15 },
+            uAudioPulse: { value: 0.0 },
+            uBaseColor: { value: new THREE.Color('#00f0ff') }
+        };
+
+        const coreShaderMaterial = new THREE.ShaderMaterial({
+            vertexShader: vertexShader,
+            fragmentShader: fragmentShader,
+            uniforms: shaderUniformsMatrix,
+            transparent: true,
+            depthWrite: false,
+            blending: THREE.AdditiveBlending
+        });
+
+        const mainParticleSystemMesh = new THREE.Points(customTopologyGeometry, coreShaderMaterial);
+        scene.add(mainParticleSystemMesh);
+
+        function updateRenderLimits() {
+            customTopologyGeometry.setDrawRange(0, renderingCount);
+        }
+        updateRenderLimits();
+
+        // --- CONTROL INTERFACE BUS OPERATIONS ---
+        function shiftTopology(shapeKeyName) {
+            if (shapeKeyName === activeShape || stateMorphing) {
+                runtimePositionArray.set(geometryCache[activeShape]);
+                customTopologyGeometry.getAttribute('position').needsUpdate = true;
+            }
+
+            stateMorphing = true;
+            
+            runtimePositionArray.set(geometryCache[activeShape]);
+            customTopologyGeometry.getAttribute('position').copyArray(runtimePositionArray);
+            customTopologyGeometry.getAttribute('position').needsUpdate = true;
+
+            destinationPositionArray.set(geometryCache[shapeKeyName]);
+            customTopologyGeometry.getAttribute('targetPosition').copyArray(destinationPositionArray);
+            customTopologyGeometry.getAttribute('targetPosition').needsUpdate = true;
+
+            shaderUniformsMatrix.uProgress.value = 0.0;
+            activeShape = shapeKeyName;
+        }
+
+        function modifyUniform(uniformKey, numericVal, indicatorElementId) {
+            const floatVal = parseFloat(numericVal);
+            shaderUniformsMatrix[uniformKey].value = floatVal;
+            document.getElementById(indicatorElementId).innerText = numericVal;
+        }
+
+        function adjustDensity(val) {
+            renderingCount = parseInt(val);
+            document.getElementById('density-val').innerText = renderingCount.toLocaleString();
+            updateRenderLimits();
+        }
+
+        function adjustMorphSpeed(val) {
+            const parseVal = parseFloat(val);
+            document.getElementById('rate-val').innerText = val;
+            morphStepFactor = parseVal * 0.012;
+        }
+
+        function toggleAudioReactivity() {
+            audioActive = !audioActive;
+            const btn = document.getElementById('audio-toggle');
+            if(audioActive) {
+                btn.classList.add('active');
+                btn.innerText = "Audio Pulse Active";
+            } else {
+                btn.classList.remove('active');
+                btn.innerText = "Enable Audio Pulse";
+                shaderUniformsMatrix.uAudioPulse.value = 0.0;
+            }
+        }
+
+        function shiftPalette(hexStringColor, HTMLButtonRef) {
+            document.querySelectorAll('.c-node').forEach(n => n.classList.remove('active'));
+            HTMLButtonRef.classList.add('active');
+            shaderUniformsMatrix.uBaseColor.value.set(hexStringColor);
+        }
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // --- RENDER CLOCK MASTER ANIMATION RUNTIME TCK ---
+        const trackingClock = new THREE.Clock();
+
+        function executeRenderFrame() {
+            requestAnimationFrame(executeRenderFrame);
+
+            const totalElapsedTime = trackingClock.getElapsedTime();
+            shaderUniformsMatrix.uTime.value = totalElapsedTime;
+
+            // Automation slowly orbits object when user is inactive
+            if (!controls.state == -1) {
+                mainParticleSystemMesh.rotation.y = totalElapsedTime * 0.03;
+                mainParticleSystemMesh.rotation.z = Math.sin(totalElapsedTime * 0.05) * 0.05;
+            } else {
+                mainParticleSystemMesh.rotation.y += 0.001;
+            }
+
+            // Audio Modulation Simulation Framework
+            if (audioActive) {
+                // Simulates virtual bass drops and transient treble wave peaks
+                const baseWave = Math.sin(totalElapsedTime * 4.0) * Math.cos(totalElapsedTime * 1.5);
+                let audioMagnitude = Math.max(0.0, baseWave * 2.2);
+                
+                // Synthesize transient snare spikes
+                if(Math.floor(totalElapsedTime * 2) % 4 == 0) {
+                    audioMagnitude += Math.random() * 1.5;
+                }
+                shaderUniformsMatrix.uAudioPulse.value = audioMagnitude;
+            }
+
+            // GPU Interpolation Lerp calculations update loop
+            if (stateMorphing) {
+                shaderUniformsMatrix.uProgress.value += morphStepFactor;
+                if (shaderUniformsMatrix.uProgress.value >= 1.0) {
+                    shaderUniformsMatrix.uProgress.value = 1.0;
+                    stateMorphing = false; 
+                }
+            }
+
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        // Initialize execution ticker
+        executeRenderFrame();
+    </script>
+</body>
+</html>
