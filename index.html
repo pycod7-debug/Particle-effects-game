@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quantum Particle Studio — Advanced Engineering Edition</title>
+    <title>Quantum Particle Studio — High-Fidelity Diagnostic Edition</title>
     <style>
         :root {
-            --bg-glass: rgba(6, 6, 14, 0.75);
-            --border-glass: rgba(255, 255, 255, 0.08);
+            --bg-glass: rgba(10, 10, 22, 0.85);
+            --border-glass: rgba(0, 240, 255, 0.2);
             --accent-neon: #00f0ff;
             --accent-green: #00ff66;
         }
@@ -34,353 +34,311 @@
             z-index: 1;
         }
         
-        /* Universal Panels layout framework */
+        /* Fixed and visible Right Panel Controls */
         .studio-panel {
             position: absolute;
             top: 20px;
             right: 20px;
-            width: 350px;
-            max-height: calc(100vh - 40px);
+            width: 340px;
+            max-height: calc(100vh - 100px);
             background: var(--bg-glass);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--border-glass);
-            border-radius: 20px;
-            padding: 24px;
+            border-radius: 16px;
+            padding: 20px;
             z-index: 10;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.8);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
             overflow-y: auto;
-            transition: opacity 0.3s ease, transform 0.3s ease, pointer-events 0.3s ease;
+            transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s ease;
         }
         
-        /* Math Telemetry Console Left Side Panel */
+        /* Fully Fixed Left Panel - Forced Visibility and High Contrast Colors */
         .math-telemetry-panel {
             position: absolute;
             top: 20px;
             left: 20px;
-            width: 380px;
-            max-height: calc(100vh - 80px);
-            background: rgba(4, 4, 10, 0.85);
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
-            border: 1px solid rgba(0, 240, 255, 0.15);
-            border-radius: 20px;
+            width: 360px;
+            max-height: calc(100vh - 100px);
+            background: rgba(5, 5, 15, 0.9);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 255, 102, 0.25);
+            border-radius: 16px;
             padding: 20px;
             z-index: 10;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.9);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.9);
             overflow-y: auto;
-            font-family: 'Courier New', Courier, monospace;
-            transition: opacity 0.3s ease, transform 0.3s ease, pointer-events 0.3s ease;
+            font-family: 'Consolas', 'Courier New', Courier, monospace;
+            color: #e2e8f0;
+            transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s ease;
         }
 
-        /* Interface Stealth Visibility States */
-        .hud-hidden .studio-panel,
-        .hud-hidden .math-telemetry-panel,
-        .hud-hidden .hud-status {
-            opacity: 0 !important;
-            transform: scale(0.95);
-            pointer-events: none !important;
-        }
-
-        /* Visibility Master Toggle Button */
+        /* Visibility Master Stealth Toggle Button */
         .visibility-toggle {
             position: absolute;
             bottom: 20px;
             right: 20px;
-            width: 48px;
-            height: 48px;
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
             background: var(--bg-glass);
             border: 1px solid var(--border-glass);
             color: #fff;
-            font-size: 1.2rem;
+            font-size: 1.4rem;
             cursor: pointer;
             z-index: 100;
             display: flex;
             align-items: center;
             justify-content: center;
             box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
             transition: all 0.2s ease;
         }
         .visibility-toggle:hover {
             border-color: var(--accent-neon);
-            box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
             transform: scale(1.05);
         }
 
-        .header {
-            margin-bottom: 22px;
-            border-bottom: 1px solid rgba(255,255,255,0.08);
-            padding-bottom: 14px;
+        /* Toggle state rule hide class */
+        .hud-hidden .studio-panel,
+        .hud-hidden .math-telemetry-panel,
+        .hud-hidden .hud-status {
+            opacity: 0 !important;
+            transform: translateY(10px) scale(0.98);
+            pointer-events: none !important;
         }
-        .header h1 {
-            font-size: 1.3rem;
+
+        .header {
+            margin-bottom: 16px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 10px;
+        }
+        .header h1, .header h2 {
+            font-size: 1.1rem;
             font-weight: 700;
-            letter-spacing: 1.5px;
-            background: linear-gradient(45deg, #fff, #a3b8cc);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            letter-spacing: 1px;
         }
         .header p {
             font-size: 0.75rem;
-            color: #6c7293;
-            margin-top: 3px;
+            color: #a0aec0;
+            margin-top: 2px;
         }
 
         .section-title {
             font-size: 0.7rem;
             text-transform: uppercase;
-            letter-spacing: 1.5px;
+            letter-spacing: 1px;
             color: var(--accent-neon);
-            margin: 15px 0 10px 0;
+            margin: 15px 0 8px 0;
             font-weight: 700;
         }
 
-        .control-item {
-            margin-bottom: 14px;
-        }
+        .control-item { margin-bottom: 12px; }
         .control-item label {
             display: flex;
             justify-content: space-between;
             font-size: 0.75rem;
-            color: #a0aec0;
-            margin-bottom: 6px;
+            color: #cbd5e0;
+            margin-bottom: 4px;
         }
 
         select {
             width: 100%;
-            background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(255,255,255,0.12);
-            padding: 12px;
-            border-radius: 10px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.15);
+            padding: 10px;
+            border-radius: 8px;
             color: white;
             font-size: 0.85rem;
             outline: none;
-            cursor: pointer;
         }
 
-        .upload-wrapper {
-            margin-top: 8px;
-        }
         .file-label {
             display: block;
             text-align: center;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px dashed rgba(255, 255, 255, 0.2);
-            padding: 11px;
-            border-radius: 8px;
-            font-size: 0.78rem;
-            color: #cbd5e0;
-            cursor: pointer;
-        }
-        .file-label:hover {
             background: rgba(0, 240, 255, 0.05);
-            border-color: var(--accent-neon);
+            border: 1px dashed rgba(0, 240, 255, 0.4);
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            color: #fff;
+            cursor: pointer;
+            margin-top: 8px;
         }
+        .file-label:hover { background: rgba(0, 240, 255, 0.15); }
         #image-input { display: none; }
 
-        .slider-wrap {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
+        .slider-wrap { display: flex; align-items: center; }
         input[type="range"] {
             flex: 1;
-            background: rgba(255,255,255,0.08);
-            height: 5px;
+            background: rgba(255,255,255,0.15);
+            height: 6px;
             border-radius: 3px;
             outline: none;
             -webkit-appearance: none;
         }
         input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
-            width: 16px;
-            height: 16px;
+            width: 14px;
+            height: 14px;
             border-radius: 50%;
-            background: #ffffff;
+            background: #fff;
             cursor: pointer;
         }
 
-        /* Formula Console Typography Formatting Rules */
+        /* Mathematical Element Styling Framework */
         .formula-container {
-            background: rgba(0, 0, 0, 0.4);
-            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 8px;
             padding: 12px;
-            margin-bottom: 15px;
-            border-left: 3px solid var(--accent-neon);
+            margin-bottom: 12px;
+            border-left: 3px solid var(--accent-green);
         }
         .formula-title {
-            color: var(--accent-neon);
+            color: var(--accent-green);
             font-size: 0.75rem;
             font-weight: bold;
-            margin-bottom: 6px;
-            text-transform: uppercase;
+            margin-bottom: 4px;
         }
         .formula-string {
-            font-size: 0.72rem;
-            color: #cbd5e0;
+            font-size: 0.75rem;
+            color: #e2e8f0;
             line-height: 1.4;
             white-space: pre-wrap;
-            word-break: break-all;
         }
         .live-var {
-            color: var(--accent-green);
+            color: #ff0055;
             font-weight: bold;
         }
 
-        /* Interactive Dynamic Matrix Math Variable Inputs */
         .math-input-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 8px;
-            margin-top: 10px;
+            gap: 6px;
+            margin-top: 8px;
         }
         .math-input-box label {
             display: block;
             font-size: 0.65rem;
-            color: #718096;
-            margin-bottom: 3px;
-            text-transform: uppercase;
+            color: #a0aec0;
+            margin-bottom: 2px;
         }
         .math-input-box input {
             width: 100%;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.15);
-            border-radius: 6px;
-            padding: 6px;
-            color: var(--accent-green);
-            font-family: monospace;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 4px;
+            padding: 4px 6px;
+            color: #00ff66;
             font-size: 0.75rem;
             outline: none;
         }
-        .math-input-box input:focus {
-            border-color: var(--accent-green);
-        }
 
-        .color-grid {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 8px;
-        }
-        .c-node {
-            height: 32px;
-            border-radius: 8px;
-            border: 2px solid transparent;
-            cursor: pointer;
-        }
-        .c-node.active { border-color: #ffffff; }
-
-        .hud-status {
-            position: absolute;
-            bottom: 25px;
-            left: 25px;
-            font-size: 0.7rem;
-            letter-spacing: 2px;
-            color: rgba(255,255,255,0.25);
-            z-index: 5;
-            pointer-events: none;
-            text-transform: uppercase;
-            transition: opacity 0.3s ease;
-        }
+        .color-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+        .c-node { height: 28px; border-radius: 6px; border: 2px solid transparent; cursor: pointer; }
+        .c-node.active { border-color: #fff; }
 
         .toggle-btn {
-            width: 100%;
-            background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(255,255,255,0.12);
-            color: #fff;
-            padding: 12px;
-            border-radius: 10px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            cursor: pointer;
+            width: 100%; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15);
+            color: #fff; padding: 10px; border-radius: 8px; font-size: 0.8rem; cursor: pointer;
         }
-        .toggle-btn.active {
-            background: linear-gradient(135deg, #00f0ff, #7f00ff);
-            border-color: transparent;
-        }
+        .toggle-btn.active { background: linear-gradient(135deg, #00f0ff, #7f00ff); border-color: transparent; }
 
-        @media (max-width: 1024px) {
-            .math-telemetry-panel { display: none; } /* Hide math panel on smaller touch frames to preserve screen space */
-        }
-        @media (max-width: 768px) {
-            .studio-panel {
-                top: auto; right: 0; bottom: 0; left: 0;
-                width: 100%; max-height: 40vh;
-                border-radius: 24px 24px 0 0; padding: 20px;
-            }
-            .header p, .hud-status { display: none; }
-            .visibility-toggle { bottom: calc(40vh + 15px); }
+        .hud-status {
+            position: absolute; bottom: 20px; left: 20px; font-size: 0.7rem;
+            letter-spacing: 1px; color: rgba(255,255,255,0.3); z-index: 5;
         }
     </style>
 </head>
 <body>
 
     <div id="canvas-container"></div>
-    <div class="hud-status">Quantum Engine Framework Active &bull; Multi-Matrix Diagnostics</div>
+    <div class="hud-status">Matrix Precision System Online</div>
 
-    <!-- Right Side HUD Controller Panel -->
-    <div class="studio-panel" id="controls-panel">
+    <!-- Left Panel: Live System Mathematics Engine -->
+    <div class="math-telemetry-panel" id="math-panel">
         <div class="header">
-            <h1>QUANTUM STUDIO</h1>
-            <p>Vector Interpolation & Noise Fields</p>
+            <h2 style="color: var(--accent-green);">QUANTUM MATH INSPECTOR</h2>
+            <p>Live values streaming from memory</p>
+        </div>
+        
+        <div class="formula-container">
+            <div class="formula-title">Active Field Topology Projection</div>
+            <div class="formula-string" id="geo-equation-text">Initialization mapping...</div>
+            <div class="math-input-grid" id="geo-variable-inputs"></div>
         </div>
 
-        <div class="section-title">Geometric Matrix</div>
+        <div class="formula-container">
+            <div class="formula-title">Real-Time Core Uniform Variables</div>
+            <div class="formula-string" id="live-uniforms-readout">
+                System Render Time: <span class="live-var" id="lbl-utime">0.000</span>s<br>
+                Morph Interpolator: <span class="live-var" id="lbl-uprogress">1.000</span><br>
+                Audio Frequency Map: <span class="live-var" id="lbl-uaudiopulse">0.000</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Panel: Creative Control Dashboard -->
+    <div class="studio-panel" id="controls-panel">
+        <div class="header">
+            <h1>CONTROL STUDIO</h1>
+            <p>Topology Configuration & Fields</p>
+        </div>
+
+        <div class="section-title">Matrix Geometry Shape</div>
         <div class="control-item">
             <select id="matrix-shape" onchange="shiftTopology(this.value)">
                 <option value="sphere">Spherical Field</option>
-                <option value="cube">Cubic Block Lattice</option>
-                <option value="torus">Donut Torus Ring</option>
+                <option value="cube">Cubic Lattice</option>
+                <option value="torus">Donut Torus</option>
                 <option value="helix">DNA Double Helix</option>
                 <option value="mobius">Mobius Strip Core</option>
                 <option value="saddle">Hyperbolic Paraboloid</option>
                 <option value="supernova">Exploded Supernova</option>
-                <option value="terrain">Sine Wave Grid Terrain</option>
-                <option value="customImage" id="custom-opt" disabled>High-Fidelity Image Matrix</option>
+                <option value="terrain">Wave Terrain</option>
+                <option value="customImage" id="custom-opt" disabled>High-Fidelity RGB Matrix</option>
             </select>
             
             <div class="upload-wrapper">
-                <label for="image-input" class="file-label" id="file-label-text">📷 Inject High-Fidelity File</label>
+                <label for="image-input" class="file-label" id="file-label-text">📷 Inject Local Image File</label>
                 <input type="file" id="image-input" accept="image/*" onchange="processUploadedImage(event)">
             </div>
         </div>
 
-        <div class="section-title">Fluid Vector Fields</div>
+        <div class="section-title">Deformation Amplitude</div>
         <div class="control-item">
-            <label><span>Noise Displacement (Amplitude)</span><span id="noise-val" class="v-indicator">2.5</span></label>
+            <label><span>Displacement Range</span><span id="noise-val">1.2</span></label>
             <div class="slider-wrap">
-                <input type="range" id="slider-noise" min="0.0" max="10.0" step="0.1" value="2.5" oninput="modifyUniform('uNoiseAmplitude', this.value, 'noise-val')">
+                <input type="range" id="slider-noise" min="0.0" max="6.0" step="0.1" value="1.2" oninput="modifyUniform('uNoiseAmplitude', this.value, 'noise-val')">
             </div>
         </div>
         <div class="control-item">
-            <label><span>Noise Spatial Frequency</span><span id="freq-val" class="v-indicator">0.15</span></label>
+            <label><span>Frequency Scale</span><span id="freq-val">0.12</span></label>
             <div class="slider-wrap">
-                <input type="range" id="slider-freq" min="0.02" max="0.6" step="0.01" value="0.15" oninput="modifyUniform('uNoiseFrequency', this.value, 'freq-val')">
-            </div>
-        </div>
-
-        <div class="section-title">Engine Configuration</div>
-        <div class="control-item">
-            <label><span>Node Density Scale</span><span id="density-val" class="v-indicator">25,000</span></label>
-            <div class="slider-wrap">
-                <input type="range" id="slider-density" min="5000" max="45000" step="1000" value="25000" oninput="adjustDensity(this.value)">
-            </div>
-        </div>
-        <div class="control-item">
-            <label><span>Glow Point Scale</span><span id="scale-val" class="v-indicator">1.5</span></label>
-            <div class="slider-wrap">
-                <input type="range" id="slider-scale" min="0.2" max="5.0" step="0.1" value="1.5" oninput="modifyUniform('uPointSize', this.value, 'scale-val')">
+                <input type="range" id="slider-freq" min="0.01" max="0.5" step="0.01" value="0.12" oninput="modifyUniform('uNoiseFrequency', this.value, 'freq-val')">
             </div>
         </div>
 
-        <div class="section-title">Acoustic Simulation</div>
+        <div class="section-title">Engine Density Parameters</div>
         <div class="control-item">
-            <button id="audio-toggle" class="toggle-btn" onclick="toggleAudioReactivity()">Enable Audio Pulse</button>
+            <label><span>Matrix Element Pool</span><span id="density-val">40,000</span></label>
+            <div class="slider-wrap">
+                <input type="range" id="slider-density" min="10000" max="45000" step="1000" value="40000" oninput="adjustDensity(this.value)">
+            </div>
+        </div>
+        <div class="control-item">
+            <label><span>Glow Node Diameter</span><span id="scale-val">1.8</span></label>
+            <div class="slider-wrap">
+                <input type="range" id="slider-scale" min="0.2" max="5.0" step="0.1" value="1.8" oninput="modifyUniform('uPointSize', this.value, 'scale-val')">
+            </div>
         </div>
 
-        <div class="section-title">High-Emissive Aura Hue</div>
+        <div class="section-title">Simulation Subsystems</div>
+        <div class="control-item">
+            <button id="audio-toggle" class="toggle-btn" onclick="toggleAudioReactivity()">Enable Audio Reactivity</button>
+        </div>
+
+        <div class="section-title">Base Node Chromatic Tint</div>
         <div class="color-grid">
             <button class="c-node active" style="background-color: #00f0ff;" onclick="shiftPalette('#00f0ff', this)"></button>
             <button class="c-node" style="background-color: #ff0055;" onclick="shiftPalette('#ff0055', this)"></button>
@@ -390,67 +348,49 @@
         </div>
     </div>
 
-    <!-- Left Side Formula & Input Modification Console Panel -->
-    <div class="math-telemetry-panel" id="math-panel">
-        <div class="header" style="margin-bottom:12px; padding-bottom:8px;">
-            <h2 style="font-size:0.9rem; color:var(--accent-green); font-weight:bold; letter-spacing:1px;">[MATH SYSTEM METRICS]</h2>
-        </div>
-        
-        <div class="formula-container">
-            <div class="formula-title">Core Geometric Projection</div>
-            <div class="formula-string" id="geo-equation-text">Loading state...</div>
-            <div class="math-input-grid" id="geo-variable-inputs"></div>
-        </div>
-
-        <div class="formula-container">
-            <div class="formula-title">GPU Simplex Noise Field Displacement</div>
-            <div class="formula-string">Pos += Norm(Pos) * Noise * (Amp + Audio)<br>Noise = snoise(Pos * Freq + Time * Vector)</div>
-        </div>
-
-        <div class="formula-container">
-            <div class="formula-title">Real-time Matrix State Uniforms</div>
-            <div class="formula-string" id="live-uniforms-readout">
-                uTime: <span class="live-var" id="lbl-utime">0.000</span><br>
-                uProgress: <span class="live-var" id="lbl-uprogress">1.000</span><br>
-                uAudioPulse: <span class="live-var" id="lbl-uaudiopulse">0.000</span>
-            </div>
-        </div>
-    </div>
-
-    <!-- Stealth Mode Activation Button Interface Anchor -->
-    <button class="visibility-toggle" onclick="toggleInterfaceStealthMode()" title="Toggle HUD Display (Eye)">👁</button>
+    <!-- Master Control Visibility Eye Switch Tool -->
+    <button class="visibility-toggle" onclick="toggleInterfaceStealthMode()" title="Hide Controls (HUD Display Toggle)">👁</button>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 
     <script>
-        // --- READOUT TELEMETRY DATA PARAMETERS ---
         const ABSOLUTE_MAX = 45000;
-        let renderingCount = window.innerWidth < 768 ? 18000 : 25000;
-        let morphStepFactor = 0.015;
-        let audioActive = false;
+        let renderingCount = 40000;
         let activeShape = 'sphere';
         let stateMorphing = false;
+        let audioActive = false;
 
-        // Custom Modify Variable Stores that drive calculations
+        // Base Formulas Math Parameter Store
         const formulaParams = {
-            sphere: { radius: 10.0 },
-            cube: { size: 16.0 },
-            torus: { major: 9.0, minor: 3.0 },
-            helix: { radius: 5.0, pitch: 24.0, turns: 32.0 },
-            mobius: { scale: 10.0, width: 4.0 },
-            saddle: { scaleX: 16.0, scaleY: 16.0, dip: 8.0 },
-            supernova: { spread: 15.0 },
-            terrain: { width: 25.0, peak: 2.5 }
+            sphere: { radius: 11.0 },
+            cube: { size: 15.0 },
+            torus: { major: 10.0, minor: 3.5 },
+            helix: { radius: 6.1, pitch: 20.0, turns: 24.0 },
+            mobius: { scale: 9.5, width: 4.5 },
+            saddle: { scaleX: 15.0, scaleY: 15.0, dip: 7.5 },
+            supernova: { spread: 14.0 },
+            terrain: { width: 24.0, peak: 3.0 }
         };
 
+        // Track positions & target coordinates
         const geometryCache = {};
         for (let key in formulaParams) {
             geometryCache[key] = new Float32Array(ABSOLUTE_MAX * 3);
         }
+        
+        // Cache for high resolution pixel array and color channels maps
         geometryCache.customImage = new Float32Array(ABSOLUTE_MAX * 3);
+        const imageColorCache = new Float32Array(ABSOLUTE_MAX * 3);
+        const standardColorArray = new Float32Array(ABSOLUTE_MAX * 3);
+        
+        // Fill base colors with default fallback channel matrix maps
+        for(let i=0; i<ABSOLUTE_MAX*3; i++) {
+            standardColorArray[i] = 1.0;
+            imageColorCache[i] = 1.0;
+        }
 
-        // --- MATH RE-CALCULATION SUBROUTINES TRACKERS ---
+        // --- MATH FIELD TOPOLOGY GENERATORS ---
         function runMathematicalCalculations(targetType = 'all') {
             for (let i = 0; i < ABSOLUTE_MAX; i++) {
                 const i3 = i * 3;
@@ -510,7 +450,7 @@
                     const p = formulaParams.supernova;
                     const svU = Math.random(); const svV = Math.random();
                     const svTheta = svU * 2.0 * Math.PI; const svPhi = Math.acos(2.0 * svV - 1.0);
-                    const spreadCurve = 3.0 + Math.pow(Math.random(), 3.0) * p.spread; 
+                    const spreadCurve = 2.0 + Math.pow(Math.random(), 4.0) * p.spread; 
                     geometryCache.supernova[i3]     = spreadCurve * Math.sin(svPhi) * Math.cos(svTheta);
                     geometryCache.supernova[i3 + 1] = spreadCurve * Math.sin(svPhi) * Math.sin(svTheta);
                     geometryCache.supernova[i3 + 2] = spreadCurve * Math.cos(svPhi);
@@ -518,16 +458,15 @@
 
                 if (targetType === 'all' || targetType === 'terrain') {
                     const p = formulaParams.terrain;
-                    const rCount = Math.floor(Math.sqrt(ABSOLUTE_MAX));
-                    const tX = ((i % rCount) / rCount - 0.5) * p.width;
-                    const tZ = (Math.floor(i / rCount) / rCount - 0.5) * p.width;
+                    const gridSize = Math.floor(Math.sqrt(ABSOLUTE_MAX));
+                    const tX = ((i % gridSize) / gridSize - 0.5) * p.width;
+                    const tZ = (Math.floor(i / gridSize) / gridSize - 0.5) * p.width;
                     geometryCache.terrain[i3]     = tX;
-                    geometryCache.terrain[i3 + 1] = Math.sin(tX * 0.5) * Math.cos(tZ * 0.5) * p.peak;
+                    geometryCache.terrain[i3 + 1] = Math.sin(tX * 0.4) * Math.cos(tZ * 0.4) * p.peak;
                     geometryCache.terrain[i3 + 2] = tZ;
                 }
             }
             
-            // If editing active running matrix layout system, patch live positions instantly
             if (targetType === activeShape && !stateMorphing) {
                 runtimePositionArray.set(geometryCache[activeShape]);
                 customTopologyGeometry.getAttribute('position').needsUpdate = true;
@@ -535,23 +474,23 @@
         }
         runMathematicalCalculations();
 
-        // --- ASPECT RATIO CONSTRAINED HIGH-FIDELITY LOCAL PICTURE PROJECTION SCANNER ---
+        // --- HIGH RESOLUTION GRID SCANNER AND RGB TRACER ---
         function processUploadedImage(event) {
             const file = event.target.files[0];
             if (!file) return;
 
-            document.getElementById('file-label-text').innerText = "Scanning High-Fi Trace...";
+            document.getElementById('file-label-text').innerText = "Processing Pixel Grid...";
             
             const reader = new FileReader();
             reader.onload = function(e) {
                 const img = new Image();
                 img.onload = function() {
-                    // Detect aspect ratio to prevent crushing or stretching details
                     const imgAspect = img.width / img.height;
                     
-                    // High-resolution scan framework grid setup sizing rules
-                    const scanWidth = 200;
-                    const scanHeight = Math.floor(200 / imgAspect);
+                    // High structural clarity matrix scan boundary parameters
+                    const totalGridPixels = ABSOLUTE_MAX;
+                    const scanWidth = Math.floor(Math.sqrt(totalGridPixels * imgAspect));
+                    const scanHeight = Math.floor(totalGridPixels / scanWidth);
                     
                     const scanCanvas = document.createElement('canvas');
                     scanCanvas.width = scanWidth;
@@ -560,51 +499,55 @@
                     ctx.drawImage(img, 0, 0, scanWidth, scanHeight);
                     
                     const imgData = ctx.getImageData(0, 0, scanWidth, scanHeight).data;
-                    const sampledNodes = [];
+                    let targetIndex = 0;
                     
-                    // Dynamic boundaries mapping matrix layout logic setup parameters
-                    const aspectFactor = window.innerWidth / window.innerHeight;
-                    let boundsX = 24;
-                    let boundsY = 24 / imgAspect;
+                    const systemCanvasAspect = window.innerWidth / window.innerHeight;
+                    let displayScaleWidth = 24.0;
+                    let displayScaleHeight = 24.0 / imgAspect;
                     
-                    if (aspectFactor < 1.0) { // Screen is tall (Portrait Phone setup context)
-                        boundsX = 20 * aspectFactor;
-                        boundsY = boundsX / imgAspect;
+                    if (systemCanvasAspect < 1.0) {
+                        displayScaleWidth = 18.0 * systemCanvasAspect;
+                        displayScaleHeight = displayScaleWidth / imgAspect;
                     }
 
-                    // Scan the pixel data with high luminous precision filtering
                     for (let y = 0; y < scanHeight; y++) {
                         for (let x = 0; x < scanWidth; x++) {
+                            if (targetIndex >= ABSOLUTE_MAX) break;
+                            
                             const idx = (y * scanWidth + x) * 4;
-                            if (imgData[idx + 3] > 40) { // Transparency validation check
-                                const luminance = 0.299*imgData[idx] + 0.587*imgData[idx+1] + 0.114*imgData[idx+2];
-                                
-                                if (luminance > 20) { // Dark noise exclusion filtering cutoff
-                                    const mappedX = ((x / scanWidth) - 0.5) * boundsX;
-                                    const mappedY = ((1.0 - (y / scanHeight)) - 0.5) * boundsY;
-                                    sampledNodes.push({ x: mappedX, y: mappedY, bright: luminance / 255 });
-                                }
-                            }
+                            const rChannel = imgData[idx] / 255.0;
+                            const gChannel = imgData[idx + 1] / 255.0;
+                            const bChannel = imgData[idx + 2] / 255.0;
+                            
+                            const i3 = targetIndex * 3;
+                            
+                            // Assign absolute 1:1 geometry mapped layout space positions
+                            geometryCache.customImage[i3]     = ((x / scanWidth) - 0.5) * displayScaleWidth;
+                            geometryCache.customImage[i3 + 1] = ((1.0 - (y / scanHeight)) - 0.5) * displayScaleHeight;
+                            geometryCache.customImage[i3 + 2] = (Math.random() - 0.5) * 0.1; // flat clean plane depth boundary
+                            
+                            // Extract colors directly out of local file stream arrays
+                            imageColorCache[i3]     = rChannel;
+                            imageColorCache[i3 + 1] = gChannel;
+                            imageColorCache[i3 + 2] = bChannel;
+                            
+                            targetIndex++;
                         }
                     }
 
-                    if (sampledNodes.length === 0) sampledNodes.push({x:0, y:0, bright:1});
-
-                    // Evenly map points across the maximum array payload memory bounds
-                    for (let i = 0; i < ABSOLUTE_MAX; i++) {
-                        const i3 = i * 3;
-                        const dataPoint = sampledNodes[i % sampledNodes.length];
-                        
-                        geometryCache.customImage[i3]     = dataPoint.x;
-                        geometryCache.customImage[i3 + 1] = dataPoint.y;
-                        // Add an organic subtle 3D noise ripple depth plane index separation
-                        geometryCache.customImage[i3 + 2] = (Math.random() - 0.5) * 1.0 + (dataPoint.bright * 0.4);
+                    // Pad arrays if pixel bounds don't perfectly fill out data buffer spaces
+                    while(targetIndex < ABSOLUTE_MAX) {
+                        const i3 = targetIndex * 3;
+                        geometryCache.customImage[i3] = 0;
+                        geometryCache.customImage[i3+1] = 0;
+                        geometryCache.customImage[i3+2] = 0;
+                        targetIndex++;
                     }
 
                     const dropdown = document.getElementById('matrix-shape');
                     document.getElementById('custom-opt').disabled = false;
                     dropdown.value = "customImage";
-                    document.getElementById('file-label-text').innerText = "✓ 1:1 Density Ready";
+                    document.getElementById('file-label-text').innerText = "✓ RGB Trace Locked";
                     
                     shiftTopology("customImage");
                 };
@@ -613,7 +556,7 @@
             reader.readAsDataURL(file);
         }
 
-        // --- RECONSTRUCT LIVE MATHEMATICAL EQUATION LAB DESK PANEL VIEWS ---
+        // --- MATH PANEL RENDER CONTROL LAB ---
         function repaintTelemetryEquationsPanel() {
             const txt = document.getElementById('geo-equation-text');
             const inputsGrid = document.getElementById('geo-variable-inputs');
@@ -623,39 +566,39 @@
 
             if (activeShape === 'sphere') {
                 const p = formulaParams.sphere;
-                equationString = `X = R * sin(𝜙) * cos(𝜃)\nY = R * sin(𝜙) * sin(𝜃)\nZ = R * cos(𝜙)\n[R = <span class="live-var">${p.radius.toFixed(2)}</span>]`;
-                inputsHTML = createMathInputNode('radius', p.radius, 'Radius (R)', 'sphere', 1, 30);
+                equationString = `X = R * sin(𝜙) * cos(𝜃)\nY = R * sin(𝜙) * sin(𝜃)\nZ = R * cos(𝜙)\nRadius [R] = <span class="live-var">${p.radius.toFixed(1)}</span>`;
+                inputsHTML = createMathInputNode('radius', p.radius, 'Radius (R)', 'sphere', 1, 25);
             } else if (activeShape === 'cube') {
                 const p = formulaParams.cube;
-                equationString = `X = rand(-W/2, W/2)\nY = rand(-W/2, W/2)\nZ = rand(-W/2, W/2)\n[W = <span class="live-var">${p.size.toFixed(2)}</span>]`;
-                inputsHTML = createMathInputNode('size', p.size, 'Width (W)', 'cube', 2, 40);
+                equationString = `X = rand(-W/2, W/2)\nY = rand(-W/2, W/2)\nZ = rand(-W/2, W/2)\nWidth [W] = <span class="live-var">${p.size.toFixed(1)}</span>`;
+                inputsHTML = createMathInputNode('size', p.size, 'Width (W)', 'cube', 2, 35);
             } else if (activeShape === 'torus') {
                 const p = formulaParams.torus;
-                equationString = `X = (R_maj + R_min * cos(𝜓)) * cos(𝜃)\nY = (R_maj + R_min * cos(𝜓)) * sin(𝜃)\nZ = R_min * sin(𝜓)\n[R_maj=<span class="live-var">${p.major.toFixed(1)}</span>, R_min=<span class="live-var">${p.minor.toFixed(1)}</span>]`;
-                inputsHTML = createMathInputNode('major', p.major, 'Major R', 'torus', 4, 25) + createMathInputNode('minor', p.minor, 'Minor R', 'torus', 1, 10);
+                equationString = `X = (R_maj + R_min * cos(𝜓)) * cos(𝜃)\nY = (R_maj + R_min * cos(𝜓)) * sin(𝜃)\nZ = R_min * sin(𝜓)\nMajor=${p.major.toFixed(1)}, Minor=${p.minor.toFixed(1)}`;
+                inputsHTML = createMathInputNode('major', p.major, 'Major Radius', 'torus', 3, 20) + createMathInputNode('minor', p.minor, 'Minor Radius', 'torus', 1, 8);
             } else if (activeShape === 'helix') {
                 const p = formulaParams.helix;
-                equationString = `𝜃 = (i / Max) * 𝜋 * Turns\nX = R * cos(𝜃) | Z = R * sin(𝜃)\nY = (i / Max) * Pitch - H/2\n[Turns=<span class="live-var">${p.turns}</span>, R=<span class="live-var">${p.radius}</span>]`;
-                inputsHTML = createMathInputNode('radius', p.radius, 'Radius', 'helix', 1, 15) + createMathInputNode('pitch', p.pitch, 'Pitch H', 'helix', 5, 40) + createMathInputNode('turns', p.turns, 'Turns', 'helix', 2, 64);
+                equationString = `𝜃 = (i / Max) * 𝜋 * Turns\nX = R * cos(𝜃) | Z = R * sin(𝜃)\nY = (i / Max) * Pitch - H/2\nTurns = <span class="live-var">${p.turns}</span>`;
+                inputsHTML = createMathInputNode('radius', p.radius, 'Radius', 'helix', 1, 15) + createMathInputNode('pitch', p.pitch, 'Height Pitch', 'helix', 5, 35) + createMathInputNode('turns', p.turns, 'Rotation Turns', 'helix', 4, 50);
             } else if (activeShape === 'mobius') {
                 const p = formulaParams.mobius;
-                equationString = `X = (R + v * cos(u/2)) * cos(u)\nY = (R + v * cos(u/2)) * sin(u)\nZ = v * sin(u/2)\n[R = <span class="live-var">${p.scale.toFixed(1)}</span>, Width = <span class="live-var">${p.width.toFixed(1)}</span>]`;
-                inputsHTML = createMathInputNode('scale', p.scale, 'Radius R', 'mobius', 3, 25) + createMathInputNode('width', p.width, 'Strip W', 'mobius', 1, 15);
+                equationString = `X = (R + v * cos(u/2)) * cos(u)\nY = (R + v * cos(u/2)) * sin(u)\nZ = v * sin(u/2)\nRadius = <span class="live-var">${p.scale.toFixed(1)}</span>`;
+                inputsHTML = createMathInputNode('scale', p.scale, 'Radius', 'mobius', 2, 20) + createMathInputNode('width', p.width, 'Strip Width', 'mobius', 1, 10);
             } else if (activeShape === 'saddle') {
                 const p = formulaParams.saddle;
-                equationString = `Z = (X² / D) - (Y² / D)\nRange X, Y: [-Scale/2, Scale/2]\n[D = <span class="live-var">${p.dip.toFixed(1)}</span>, Scale = <span class="live-var">${p.scaleX.toFixed(1)}</span>]`;
-                inputsHTML = createMathInputNode('dip', p.dip, 'Dip Divisor D', 'saddle', 1, 20) + createMathInputNode('scaleX', p.scaleX, 'Scale bounds', 'saddle', 5, 30);
+                equationString = `Z = (X² / D) - (Y² / D)\nRange Bounds: [-Scale/2, Scale/2]\nDivisor [D] = <span class="live-var">${p.dip.toFixed(1)}</span>`;
+                inputsHTML = createMathInputNode('dip', p.dip, 'Dip Slope D', 'saddle', 1, 15) + createMathInputNode('scaleX', p.scaleX, 'Field Bounds', 'saddle', 4, 25);
             } else if (activeShape === 'supernova') {
                 const p = formulaParams.supernova;
-                equationString = `Dir = SphericalRand()\nSpread = Velocity * Force³ * SpreadFactor\nPos = Dir * Spread\n[SpreadFactor = <span class="live-var">${p.spread.toFixed(1)}</span>]`;
-                inputsHTML = createMathInputNode('spread', p.spread, 'Spread Max', 'supernova', 2, 45);
+                equationString = `Dir = Vector3.RandomDirection()\nSpread = Velocity * SpreadFactor\nMax Radial Force = <span class="live-var">${p.spread.toFixed(1)}</span>`;
+                inputsHTML = createMathInputNode('spread', p.spread, 'Spread Scale', 'supernova', 1, 30);
             } else if (activeShape === 'terrain') {
                 const p = formulaParams.terrain;
-                equationString = `Y = sin(X * 0.5) * cos(Z * 0.5) * Peak\nGrid Range: [-W/2, W/2]\n[W = <span class="live-var">${p.width.toFixed(1)}</span>, Peak = <span class="live-var">${p.peak.toFixed(1)}</span>]`;
-                inputsHTML = createMathInputNode('width', p.width, 'Width W', 'terrain', 10, 40) + createMathInputNode('peak', p.peak, 'Peak Height', 'terrain', 0.5, 10);
+                equationString = `Y = sin(X * 0.4) * cos(Z * 0.4) * Peak\nScale = <span class="live-var">${p.width.toFixed(1)}</span>, Peak = <span class="live-var">${p.peak.toFixed(1)}</span>`;
+                inputsHTML = createMathInputNode('width', p.width, 'Mesh Width', 'terrain', 5, 35) + createMathInputNode('peak', p.peak, 'Wave Height', 'terrain', 0.2, 8);
             } else if (activeShape === 'customImage') {
-                equationString = `High-Fi Matrix Vector Sample Engine Map\nPixel coordinates scanned from binary local file.\nDimensions dynamically mapped to frame view matrix.`;
-                inputsHTML = `<div style="font-size:0.65rem; color:#718096; grid-column:span 2;">ASPECT SCALING INTERLOCKED</div>`;
+                equationString = `Matrix Sampling Status: Native 1:1 Map\nReading continuous RGB image binary matrices.\nImage Colors linked to active custom vertex attribute array.`;
+                inputsHTML = `<div style="font-size:0.65rem; color:#a0aec0; grid-column:span 2;">MANUAL OVERRIDES LOCK</div>`;
             }
 
             txt.innerHTML = equationString;
@@ -666,7 +609,7 @@
             return `
                 <div class="math-input-box">
                     <label>${label}</label>
-                    <input type="number" step="0.1" min="${min}" max="${max}" value="${val}" onchange="updateFormulaValue('${shape}', '${key}', this.value)">
+                    <input type="number" step="0.5" min="${min}" max="${max}" value="${val}" oninput="updateFormulaValue('${shape}', '${key}', this.value)">
                 </div>
             `;
         }
@@ -679,14 +622,13 @@
             repaintTelemetryEquationsPanel();
         }
 
-        // --- GRAPHICS GRAPH CORE ARCHITECTURE BOOT ---
+        // --- GL RENDERING PIPELINE STAGE ---
         const container = document.getElementById('canvas-container');
         const scene = new THREE.Scene();
-        scene.fog = new THREE.FogExp2(0x020205, 0.012);
+        scene.fog = new THREE.FogExp2(0x020205, 0.015);
 
-        const initialCameraDistance = window.innerWidth < 768 ? 34 : 28;
         const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.set(0, 6, initialCameraDistance);
+        camera.position.set(0, 5, 26);
 
         const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
         renderer.setSize(window.innerWidth, window.innerHeight);
@@ -695,9 +637,9 @@
 
         const controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
-        controls.dampingFactor = 0.06;
+        controls.dampingFactor = 0.05;
 
-        // --- SHADER PIPELINE INTEGRATION ---
+        // GLSL Core Programmable Shaders
         const vertexShader = `
             uniform float uProgress;
             uniform float uPointSize;
@@ -705,9 +647,13 @@
             uniform float uNoiseAmplitude;
             uniform float uNoiseFrequency;
             uniform float uAudioPulse;
+            uniform float uIsCustomImage;
             
             attribute vec3 targetPosition;
-            varying vec3 vTransformedPos;
+            attribute vec3 customColor;
+            attribute vec3 targetColor;
+
+            varying vec3 vColor;
             varying float vNoiseFactor;
 
             vec4 permute(vec4 x){return mod(((x*34.0)+1.0)*x, 289.0);}
@@ -757,39 +703,50 @@
             }
 
             void main() {
-                vec3 structuralPos = mix(position, targetPosition, uProgress);
-                float noiseVal = snoise(vec3(structuralPos * uNoiseFrequency + vec3(0.0, uTime * 0.15, uTime * 0.1)));
-                vNoiseFactor = noiseVal;
+                vec3 morphPos = mix(position, targetPosition, uProgress);
+                vColor = mix(customColor, targetColor, uProgress);
                 
-                vec3 alteredPos = structuralPos + (normalize(structuralPos) * noiseVal * (uNoiseAmplitude + uAudioPulse));
-                vTransformedPos = alteredPos;
+                float noise = snoise(vec3(morphPos * uNoiseFrequency + vec3(0.0, uTime * 0.12, uTime * 0.08)));
+                vNoiseFactor = noise;
+                
+                // Do not twist native custom images into spheres with directional vectors unless forced
+                vec3 pushDirection = (uIsCustomImage > 0.5) ? vec3(0.0, 0.0, 1.0) : normalize(morphPos);
+                vec3 dynamicPos = morphPos + (pushDirection * noise * (uNoiseAmplitude + uAudioPulse));
 
-                vec4 mvPosition = modelViewMatrix * vec4(alteredPos, 1.0);
+                vec4 mvPosition = modelViewMatrix * vec4(dynamicPos, 1.0);
                 gl_Position = projectionMatrix * mvPosition;
-                gl_PointSize = (uPointSize * 38.0) / -mvPosition.z;
+                gl_PointSize = (uPointSize * 35.0) / -mvPosition.z;
             }
         `;
 
         const fragmentShader = `
             uniform vec3 uBaseColor;
             uniform float uAudioPulse;
-            varying vec3 vTransformedPos;
+            uniform float uIsCustomImage;
+            varying vec3 vColor;
             varying float vNoiseFactor;
 
             void main() {
-                float circularRadius = distance(gl_PointCoord, vec2(0.5));
-                if (circularRadius > 0.5) discard;
+                float dist = distance(gl_PointCoord, vec2(0.5));
+                if (dist > 0.5) discard;
                 
-                float luminosity = pow(0.05 / circularRadius, 1.5);
-                vec3 matrixColor = uBaseColor;
+                float intensity = pow(0.04 / dist, 1.4);
+                vec3 drawColor = vec3(0.0);
                 
-                matrixColor.g += (vNoiseFactor * 0.25);
-                matrixColor.b += (sin(vTransformedPos.z * 0.1) * 0.15);
+                if(uIsCustomImage > 0.5) {
+                    // Extract direct unmodified high fidelity photo bits
+                    drawColor = vColor;
+                } else {
+                    // Geometric noise-reactive formula color generator
+                    drawColor = uBaseColor;
+                    drawColor.g += (vNoiseFactor * 0.2);
+                    drawColor.r += (sin(vNoiseFactor * 2.0) * 0.1);
+                }
                 
                 if(uAudioPulse > 0.0) {
-                    matrixColor += vec3(uAudioPulse * 0.12 * luminosity);
+                    drawColor += vec3(uAudioPulse * 0.1 * intensity);
                 }
-                gl_FragColor = vec4(matrixColor, luminosity * 0.8);
+                gl_FragColor = vec4(drawColor, intensity * 0.85);
             }
         `;
 
@@ -802,14 +759,17 @@
         const customTopologyGeometry = new THREE.BufferGeometry();
         customTopologyGeometry.setAttribute('position', new THREE.BufferAttribute(runtimePositionArray, 3));
         customTopologyGeometry.setAttribute('targetPosition', new THREE.BufferAttribute(destinationPositionArray, 3));
+        customTopologyGeometry.setAttribute('customColor', new THREE.BufferAttribute(standardColorArray, 3));
+        customTopologyGeometry.setAttribute('targetColor', new THREE.BufferAttribute(standardColorArray, 3));
 
         const shaderUniformsMatrix = {
             uProgress: { value: 1.0 },
-            uPointSize: { value: window.innerWidth < 768 ? 1.2 : 1.5 },
+            uPointSize: { value: 1.8 },
             uTime: { value: 0.0 },
-            uNoiseAmplitude: { value: 2.5 },
-            uNoiseFrequency: { value: 0.15 },
+            uNoiseAmplitude: { value: 1.2 },
+            uNoiseFrequency: { value: 0.12 },
             uAudioPulse: { value: 0.0 },
+            uIsCustomImage: { value: 0.0 },
             uBaseColor: { value: new THREE.Color('#00f0ff') }
         };
 
@@ -822,27 +782,46 @@
         const mainParticleSystemMesh = new THREE.Points(customTopologyGeometry, coreShaderMaterial);
         scene.add(mainParticleSystemMesh);
 
-        function updateRenderLimits() {
+        function adjustDensity(val) {
+            renderingCount = parseInt(val);
+            document.getElementById('density-val').innerText = renderingCount.toLocaleString();
             customTopologyGeometry.setDrawRange(0, renderingCount);
         }
-        updateRenderLimits();
+        adjustDensity(renderingCount);
         repaintTelemetryEquationsPanel();
 
-        // --- CONTROL INTERFACE BUS OPERATIONS ---
+        // --- SHIFT CORE TOPOLOGY CONTROLLER RUNNER ---
         function shiftTopology(shapeKeyName) {
-            if (shapeKeyName === activeShape || stateMorphing) {
-                runtimePositionArray.set(geometryCache[activeShape]);
-                customTopologyGeometry.getAttribute('position').needsUpdate = true;
-            }
-
+            if (stateMorphing) return;
             stateMorphing = true;
+
+            // Snapshot active layout parameters to runtime data slots
             runtimePositionArray.set(geometryCache[activeShape]);
             customTopologyGeometry.getAttribute('position').copyArray(runtimePositionArray);
             customTopologyGeometry.getAttribute('position').needsUpdate = true;
+            
+            const colorAttr = customTopologyGeometry.getAttribute('customColor');
+            if (activeShape === 'customImage') {
+                colorAttr.copyArray(imageColorCache);
+            } else {
+                colorAttr.copyArray(standardColorArray);
+            }
+            colorAttr.needsUpdate = true;
 
+            // Target destination setups
             destinationPositionArray.set(geometryCache[shapeKeyName]);
             customTopologyGeometry.getAttribute('targetPosition').copyArray(destinationPositionArray);
             customTopologyGeometry.getAttribute('targetPosition').needsUpdate = true;
+
+            const targetColorAttr = customTopologyGeometry.getAttribute('targetColor');
+            if (shapeKeyName === 'customImage') {
+                targetColorAttr.copyArray(imageColorCache);
+                shaderUniformsMatrix.uIsCustomImage.value = 1.0;
+            } else {
+                targetColorAttr.copyArray(standardColorArray);
+                shaderUniformsMatrix.uIsCustomImage.value = 0.0;
+            }
+            targetColorAttr.needsUpdate = true;
 
             shaderUniformsMatrix.uProgress.value = 0.0;
             activeShape = shapeKeyName;
@@ -856,21 +835,15 @@
             document.getElementById(indicatorElementId).innerText = numericVal;
         }
 
-        function adjustDensity(val) {
-            renderingCount = parseInt(val);
-            document.getElementById('density-val').innerText = renderingCount.toLocaleString();
-            updateRenderLimits();
-        }
-
         function toggleAudioReactivity() {
             audioActive = !audioActive;
             const btn = document.getElementById('audio-toggle');
             if(audioActive) {
                 btn.classList.add('active');
-                btn.innerText = "Audio Pulse Active";
+                btn.innerText = "Audio Reactivity Active";
             } else {
                 btn.classList.remove('active');
-                btn.innerText = "Enable Audio Pulse";
+                btn.innerText = "Enable Audio Reactivity";
                 shaderUniformsMatrix.uAudioPulse.value = 0.0;
             }
         }
@@ -881,7 +854,6 @@
             shaderUniformsMatrix.uBaseColor.value.set(hexStringColor);
         }
 
-        // Stealth System Interface Switch
         function toggleInterfaceStealthMode() {
             document.body.classList.toggle('hud-hidden');
         }
@@ -892,7 +864,7 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
 
-        // --- RENDER CLOCK MASTER RUNTIME ---
+        // --- ANIMATION SYSTEM MAIN LOOP TICKER ---
         const trackingClock = new THREE.Clock();
 
         function executeRenderFrame() {
@@ -901,34 +873,32 @@
             const totalElapsedTime = trackingClock.getElapsedTime();
             shaderUniformsMatrix.uTime.value = totalElapsedTime;
 
-            if (!controls.state == -1) {
-                mainParticleSystemMesh.rotation.y = totalElapsedTime * 0.03;
-                mainParticleSystemMesh.rotation.z = Math.sin(totalElapsedTime * 0.05) * 0.05;
+            // Rotational slow inertia values configuration rules
+            if (activeShape !== 'customImage') {
+                mainParticleSystemMesh.rotation.y = totalElapsedTime * 0.05;
+                mainParticleSystemMesh.rotation.x = Math.sin(totalElapsedTime * 0.02) * 0.05;
             } else {
-                mainParticleSystemMesh.rotation.y += 0.001;
+                // Pin canvas down when reviewing photos so they sit completely flat across screen
+                mainParticleSystemMesh.rotation.set(0,0,0);
             }
 
             if (audioActive) {
-                const baseWave = Math.sin(totalElapsedTime * 4.0) * Math.cos(totalElapsedTime * 1.5);
-                let audioMagnitude = Math.max(0.0, baseWave * 2.2);
-                if(Math.floor(totalElapsedTime * 2) % 4 == 0) audioMagnitude += Math.random() * 1.5;
-                shaderUniformsMatrix.uAudioPulse.value = audioMagnitude;
+                const wave = Math.abs(Math.sin(totalElapsedTime * 3.5) * Math.cos(totalElapsedTime * 1.8));
+                shaderUniformsMatrix.uAudioPulse.value = wave * 1.8;
             }
 
             if (stateMorphing) {
-                shaderUniformsMatrix.uProgress.value += morphStepFactor;
+                shaderUniformsMatrix.uProgress.value += 0.02;
                 if (shaderUniformsMatrix.uProgress.value >= 1.0) {
                     shaderUniformsMatrix.uProgress.value = 1.0;
-                    stateMorphing = false; 
+                    stateMorphing = false;
                 }
             }
 
-            // Sync numerical matrix readouts inside telemetry dashboard elements safely
-            if (window.getComputedStyle(document.getElementById('math-panel')).opacity !== "0") {
-                document.getElementById('lbl-utime').innerText = totalElapsedTime.toFixed(3);
-                document.getElementById('lbl-uprogress').innerText = shaderUniformsMatrix.uProgress.value.toFixed(3);
-                document.getElementById('lbl-uaudiopulse').innerText = shaderUniformsMatrix.uAudioPulse.value.toFixed(3);
-            }
+            // Continuously streams memory diagnostics directly inside left panel layout spaces
+            document.getElementById('lbl-utime').innerText = totalElapsedTime.toFixed(3);
+            document.getElementById('lbl-uprogress').innerText = shaderUniformsMatrix.uProgress.value.toFixed(3);
+            document.getElementById('lbl-uaudiopulse').innerText = shaderUniformsMatrix.uAudioPulse.value.toFixed(3);
 
             controls.update();
             renderer.render(scene, camera);
