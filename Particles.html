@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quantum Particle Multi-Matrix Studio</title>
+    <title>Quantum Particle Multi-Matrix Studio + Mobile Projections</title>
     <style>
         :root {
             --bg-glass: rgba(6, 6, 14, 0.7);
@@ -117,6 +117,31 @@
         }
         select option { background: #070710; }
 
+        /* Custom Image Uploader Interface Elements */
+        .upload-wrapper {
+            margin-top: 8px;
+        }
+        .file-label {
+            display: block;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px dashed rgba(255, 255, 255, 0.2);
+            padding: 11px;
+            border-radius: 8px;
+            font-size: 0.78rem;
+            color: #cbd5e0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .file-label:hover {
+            background: rgba(0, 240, 255, 0.05);
+            border-color: var(--accent-neon);
+            color: #fff;
+        }
+        #image-input {
+            display: none;
+        }
+
         .slider-wrap {
             display: flex;
             align-items: center;
@@ -219,7 +244,7 @@
                 bottom: 0;
                 left: 0;
                 width: 100%;
-                max-height: 40vh;
+                max-height: 46vh;
                 border-radius: 24px 24px 0 0;
                 padding: 20px;
                 border-left: none;
@@ -230,18 +255,20 @@
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
-                margin-bottom: 15px;
+                margin-bottom: 12px;
                 padding-bottom: 8px;
             }
             .header p { display: none; }
             .hud-status { display: none; }
+            .section-title { margin: 10px 0 6px 0; }
+            .control-item { margin-bottom: 10px; }
         }
     </style>
 </head>
 <body>
 
     <div id="canvas-container"></div>
-    <div class="hud-status">GPU Matrix Architecture &bull; 3D Orbit Active</div>
+    <div class="hud-status">GPU Matrix Architecture &bull; Responsive Mobile Mode Enabled</div>
 
     <!-- Right Side HUD Controller Framework Panel -->
     <div class="studio-panel">
@@ -261,7 +288,14 @@
                 <option value="saddle">Hyperbolic Paraboloid</option>
                 <option value="supernova">Exploded Supernova</option>
                 <option value="terrain">Sine Wave Grid Terrain</option>
+                <option value="customImage" id="custom-opt" disabled>Uploaded Image Matrix</option>
             </select>
+            
+            <!-- Custom Image Input System Integration Box -->
+            <div class="upload-wrapper">
+                <label for="image-input" class="file-label" id="file-label-text">📷 Inject Custom Image Matrix</label>
+                <input type="file" id="image-input" accept="image/*" onchange="processUploadedImage(event)">
+            </div>
         </div>
 
         <div class="section-title">Fluid Vector Fields</div>
@@ -320,12 +354,16 @@
     <script>
         // --- DATA STATE CAPABILITIES ALLOCATION ---
         const ABSOLUTE_MAX = 45000;
-        let renderingCount = 25000;
+        let renderingCount = window.innerWidth < 768 ? 18000 : 25000; // Lower density by default on phones for raw speed
         let morphStepFactor = 0.015;
         let audioActive = false;
 
         let activeShape = 'sphere';
         let stateMorphing = false;
+
+        // Auto-initialize layout slider tracking values
+        document.getElementById('slider-density').value = renderingCount;
+        document.getElementById('density-val').innerText = renderingCount.toLocaleString();
 
         const geometryCache = {
             sphere: new Float32Array(ABSOLUTE_MAX * 3),
@@ -335,7 +373,8 @@
             mobius: new Float32Array(ABSOLUTE_MAX * 3),
             saddle: new Float32Array(ABSOLUTE_MAX * 3),
             supernova: new Float32Array(ABSOLUTE_MAX * 3),
-            terrain: new Float32Array(ABSOLUTE_MAX * 3)
+            terrain: new Float32Array(ABSOLUTE_MAX * 3),
+            customImage: new Float32Array(ABSOLUTE_MAX * 3)
         };
 
         // --- MATH GENERATOR PACKS ---
@@ -343,7 +382,7 @@
             for (let i = 0; i < ABSOLUTE_MAX; i++) {
                 const i3 = i * 3;
 
-                // Spherical Fields Vector Coordinates
+                // Spherical Fields
                 const u = Math.random(); const v = Math.random();
                 const theta = u * 2.0 * Math.PI; const phi = Math.acos(2.0 * v - 1.0);
                 geometryCache.sphere[i3]     = 10 * Math.sin(phi) * Math.cos(theta);
@@ -371,7 +410,7 @@
 
                 // Non-Orientable Mobius Topology
                 const mU = Math.random() * Math.PI * 2;
-                const mV = (Math.random() - 0.5) * 4.0; // Strip width allocation bounds
+                const mV = (Math.random() - 0.5) * 4.0; 
                 geometryCache.mobius[i3]     = (10 + (mV * Math.cos(mU / 2.0))) * Math.cos(mU);
                 geometryCache.mobius[i3 + 1] = (10 + (mV * Math.cos(mU / 2.0))) * Math.sin(mU);
                 geometryCache.mobius[i3 + 2] = mV * Math.sin(mU / 2.0);
@@ -380,13 +419,13 @@
                 const sX = (Math.random() - 0.5) * 16;
                 const sY = (Math.random() - 0.5) * 16;
                 geometryCache.saddle[i3]     = sX;
-                geometryCache.saddle[i3 + 1] = ((sX*sX) / 8.0) - ((sY*sY) / 8.0); // Saddle math functions
+                geometryCache.saddle[i3 + 1] = ((sX*sX) / 8.0) - ((sY*sY) / 8.0); 
                 geometryCache.saddle[i3 + 2] = sY;
 
                 // High Dispersion Explosive Supernova
                 const svU = Math.random(); const svV = Math.random();
                 const svTheta = svU * 2.0 * Math.PI; const svPhi = Math.acos(2.0 * svV - 1.0);
-                const explosionSpread = 3.0 + Math.pow(Math.random(), 3.0) * 15.0; // Concentrated center shell profile
+                const explosionSpread = 3.0 + Math.pow(Math.random(), 3.0) * 15.0; 
                 geometryCache.supernova[i3]     = explosionSpread * Math.sin(svPhi) * Math.cos(svTheta);
                 geometryCache.supernova[i3 + 1] = explosionSpread * Math.sin(svPhi) * Math.sin(svTheta);
                 geometryCache.supernova[i3 + 2] = explosionSpread * Math.cos(svPhi);
@@ -400,17 +439,107 @@
                 geometryCache.terrain[i3]     = tX;
                 geometryCache.terrain[i3 + 1] = Math.sin(tX * 0.5) * Math.cos(tZ * 0.5) * 2.5;
                 geometryCache.terrain[i3 + 2] = tZ;
+                
+                // Fallback
+                geometryCache.customImage[i3]     = (Math.random() - 0.5) * 20;
+                geometryCache.customImage[i3 + 1] = (Math.random() - 0.5) * 20;
+                geometryCache.customImage[i3 + 2] = 0;
             }
         }
         runMathematicalCalculations();
+
+        // --- CUSTOM PHONE-OPTIMIZED DETACHED IMAGE INJECTION SCANNER ---
+        function processUploadedImage(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            document.getElementById('file-label-text').innerText = "Analyzing Frame...";
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    // Mobile Optimization: Use 96px resolution for mobile screens to lower canvas thread blockages
+                    const isMobilePhone = window.innerWidth < 768;
+                    const scanSize = isMobilePhone ? 96 : 128; 
+                    
+                    const scanCanvas = document.createElement('canvas');
+                    scanCanvas.width = scanSize;
+                    scanCanvas.height = scanSize;
+                    const ctx = scanCanvas.getContext('2d');
+                    
+                    ctx.drawImage(img, 0, 0, scanSize, scanSize);
+                    const imgData = ctx.getImageData(0, 0, scanSize, scanSize).data;
+                    
+                    const dynamicPositionsList = [];
+                    
+                    // Aspect ratio calculations: adjustments to keep square metrics fitting vertical tall mobile orientations
+                    const aspectFactor = window.innerWidth / window.innerHeight;
+                    let targetScaleX = 24;
+                    let targetScaleY = 24;
+                    
+                    if (aspectFactor < 1.0) { 
+                        // Tall layout context (Phones portrait): scale down horizontal axis so vectors stay inside boundary edges
+                        targetScaleX = 24 * aspectFactor * 1.2;
+                        targetScaleY = 24 * 1.1; 
+                    }
+                    
+                    for (let y = 0; y < scanSize; y++) {
+                        for (let x = 0; x < scanSize; x++) {
+                            const pixelIndex = (y * scanSize + x) * 4;
+                            const r = imgData[pixelIndex];
+                            const g = imgData[pixelIndex + 1];
+                            const b = imgData[pixelIndex + 2];
+                            const alpha = imgData[pixelIndex + 3];
+                            
+                            const luminance = 0.299 * r + 0.587 * g + 0.114 * b;
+                            
+                            if (alpha > 30 && luminance > 15) {
+                                const pX = ((x / scanSize) - 0.5) * targetScaleX;
+                                const pY = (((scanSize - y) / scanSize) - 0.5) * targetScaleY; 
+                                dynamicPositionsList.push({x: pX, y: pY});
+                            }
+                        }
+                    }
+                    
+                    if (dynamicPositionsList.length === 0) {
+                        for(let i=0; i<100; i++) dynamicPositionsList.push({x:0, y:0});
+                    }
+
+                    // Populate structure caches across global limitations array bounds
+                    for (let i = 0; i < ABSOLUTE_MAX; i++) {
+                        const i3 = i * 3;
+                        const sourceNode = dynamicPositionsList[i % dynamicPositionsList.length];
+                        
+                        geometryCache.customImage[i3]     = sourceNode.x;
+                        geometryCache.customImage[i3 + 1] = sourceNode.y;
+                        // Add depth offset variations to look incredible on rotational shifts
+                        geometryCache.customImage[i3 + 2] = (Math.random() - 0.5) * 1.5;
+                    }
+
+                    const selectorDropdown = document.getElementById('matrix-shape');
+                    const customOptionRef = document.getElementById('custom-opt');
+                    customOptionRef.disabled = false;
+                    selectorDropdown.value = "customImage";
+                    
+                    document.getElementById('file-label-text').innerText = "✓ System Injected";
+                    
+                    shiftTopology("customImage");
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
 
         // --- GRAPHICS GRAPH CORE ARCHITECTURE BOOT ---
         const container = document.getElementById('canvas-container');
         const scene = new THREE.Scene();
         scene.fog = new THREE.FogExp2(0x020205, 0.012);
 
+        // Mobile Adjustment: Push camera slightly backwards if view space is thin so elements fill neatly
+        const initialCameraDistance = window.innerWidth < 768 ? 34 : 28;
         const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.set(0, 8, 28);
+        camera.position.set(0, 6, initialCameraDistance);
 
         const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
         renderer.setSize(window.innerWidth, window.innerHeight);
@@ -424,7 +553,6 @@
         controls.minDistance = 5;
 
         // --- SHADER PIPELINE INTEGRATION INJECTING NOISE ON THE GPU ---
-        // Includes GLSL implementation of Ashima Arts 3D Simplex Web Noise
         const vertexShader = `
             uniform float uProgress;
             uniform float uPointSize;
@@ -437,7 +565,6 @@
             varying vec3 vTransformedPos;
             varying float vNoiseFactor;
 
-            // --- Ashima Arts 3D Simplex Noise Subroutines ---
             vec4 permute(vec4 x){return mod(((x*34.0)+1.0)*x, 289.0);}
             vec4 taylorInvSqrt(vec4 r){return 1.79284291400159 - 0.85373472095314 * r;}
 
@@ -485,24 +612,20 @@
             }
 
             void main() {
-                // Morph core blend vector tracking paths
                 vec3 structuralPos = mix(position, targetPosition, uProgress);
                 
-                // Vector noise spatial injection
                 float noiseVal = snoise(vec3(structuralPos * uNoiseFrequency + vec3(0.0, uTime * 0.15, uTime * 0.1)));
                 vNoiseFactor = noiseVal;
                 
-                // Apply directional distortion displacement
                 vec3 alteredPos = structuralPos + (normalize(structuralPos) * noiseVal * (uNoiseAmplitude + uAudioPulse));
                 vTransformedPos = alteredPos;
 
                 vec4 mvPosition = modelViewMatrix * vec4(alteredPos, 1.0);
                 gl_Position = projectionMatrix * mvPosition;
                 
-                // Scale calculations keeping point sizes proportional over lens distance
-                gl_PointSize = (uPointSize * 35.0) / -mvPosition.z;
+                // Handle high pixel ratio variations nicely across premium phone setups
+                gl_PointSize = (uPointSize * 38.0) / -mvPosition.z;
                 
-                // Audio pulsation scaling spikes
                 if(uAudioPulse > 0.0) {
                     gl_PointSize *= (1.0 + (abs(noiseVal) * 0.4));
                 }
@@ -516,21 +639,17 @@
             varying float vNoiseFactor;
 
             void main() {
-                // Procedural generation of circular high-intensity emmissive nodes
                 float circularRadius = distance(gl_PointCoord, vec2(0.5));
                 if (circularRadius > 0.5) discard;
                 
                 float luminosity = pow(0.05 / circularRadius, 1.5);
                 
-                // Color mapping vector arrays
                 vec3 matrixColor = uBaseColor;
                 
-                // Hyper-bright modulation vectors
                 matrixColor.g += (vNoiseFactor * 0.25);
                 matrixColor.b += (sin(vTransformedPos.z * 0.1) * 0.15);
                 
                 if(uAudioPulse > 0.0) {
-                    // Inject white hot center cores dynamically
                     matrixColor += vec3(uAudioPulse * 0.12 * luminosity);
                 }
 
@@ -550,13 +669,17 @@
 
         const shaderUniformsMatrix = {
             uProgress: { value: 1.0 },
-            uPointSize: { value: 1.5 },
+            uPointSize: { value: window.innerWidth < 768 ? 1.2 : 1.5 }, // Marginally smaller nodes on mobile for sharper looks
             uTime: { value: 0.0 },
             uNoiseAmplitude: { value: 2.5 },
             uNoiseFrequency: { value: 0.15 },
             uAudioPulse: { value: 0.0 },
             uBaseColor: { value: new THREE.Color('#00f0ff') }
         };
+
+        // Sync visual point controller thumb location value on load
+        document.getElementById('slider-scale').value = shaderUniformsMatrix.uPointSize.value;
+        document.getElementById('scale-val').innerText = shaderUniformsMatrix.uPointSize.value;
 
         const coreShaderMaterial = new THREE.ShaderMaterial({
             vertexShader: vertexShader,
@@ -648,7 +771,6 @@
             const totalElapsedTime = trackingClock.getElapsedTime();
             shaderUniformsMatrix.uTime.value = totalElapsedTime;
 
-            // Automation slowly orbits object when user is inactive
             if (!controls.state == -1) {
                 mainParticleSystemMesh.rotation.y = totalElapsedTime * 0.03;
                 mainParticleSystemMesh.rotation.z = Math.sin(totalElapsedTime * 0.05) * 0.05;
@@ -656,20 +778,16 @@
                 mainParticleSystemMesh.rotation.y += 0.001;
             }
 
-            // Audio Modulation Simulation Framework
             if (audioActive) {
-                // Simulates virtual bass drops and transient treble wave peaks
                 const baseWave = Math.sin(totalElapsedTime * 4.0) * Math.cos(totalElapsedTime * 1.5);
                 let audioMagnitude = Math.max(0.0, baseWave * 2.2);
                 
-                // Synthesize transient snare spikes
                 if(Math.floor(totalElapsedTime * 2) % 4 == 0) {
                     audioMagnitude += Math.random() * 1.5;
                 }
                 shaderUniformsMatrix.uAudioPulse.value = audioMagnitude;
             }
 
-            // GPU Interpolation Lerp calculations update loop
             if (stateMorphing) {
                 shaderUniformsMatrix.uProgress.value += morphStepFactor;
                 if (shaderUniformsMatrix.uProgress.value >= 1.0) {
@@ -682,7 +800,6 @@
             renderer.render(scene, camera);
         }
 
-        // Initialize execution ticker
         executeRenderFrame();
     </script>
 </body>
